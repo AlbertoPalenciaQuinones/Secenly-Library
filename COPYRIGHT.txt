@@ -1,0 +1,5 @@
+DERECHOS DE AUTOR DE TODAS LAS BIBLIOTECAS EXTERNAS UTILIZADAS
+
+BIBLIOTECA: SHA512
+https://github.com/pr0f3ss/SHA512
+Mencionar en la documentación o incluirlo en archivo LICENSE  o COPYING, también es recomendable hacer comentario de su uso en el código fuente
