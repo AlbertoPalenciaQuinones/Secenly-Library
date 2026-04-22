@@ -28,6 +28,7 @@ int main() {
     }
     std::string licenseId = lcManager.generateLicenseId(product.getProductId());
 
-    std::cout << "License ID: " << licenseId << std::endl;
+    std::cout << "License ID generado: " << licenseId << std::endl;
+
     return 0;
 }
