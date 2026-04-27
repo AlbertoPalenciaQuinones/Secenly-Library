@@ -9,6 +9,7 @@
 //#include <botan/ber_dec.h>
 
 int main() {
+    // ESTO ES UNA SIMULACIÓN DE COMMIT
     HardwareManager hwManager;
     ProductIdentifier product;
     LicenseManager lcManager;
