@@ -11,8 +11,8 @@ public:
     bool initialize();
     std::vector<unsigned char> readSeedBytes();
     std::string getProductId() const;
-    std::vector<unsigned char> getSeed() const;
-    bool setProductId(const std::string& hwid);
+    void setProductId(const std::string& hwid);
+    void setPath(const std::string& p);
 
 private:
     std::string product_id;

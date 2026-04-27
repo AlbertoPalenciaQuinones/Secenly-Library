@@ -6,7 +6,7 @@
 
 namespace fs = std::filesystem;
 
-ProductIdentifier::ProductIdentifier() : path("src/library/seed") {}
+ProductIdentifier::ProductIdentifier() {}
 
 bool ProductIdentifier::initialize() {
     // Si no tiene semilla ya creada, se genera una nueva
@@ -81,22 +81,20 @@ std::vector<unsigned char> ProductIdentifier::readSeedBytes() {
     return {};
 }
 
-// Getter para la semilla completa
-std::vector<unsigned char> ProductIdentifier::getSeed() const {
-    return seed;
-}
-
 // Establece el ProductId combinando la semilla y el hwid
-bool ProductIdentifier::setProductId(const std::string& hwid) {
+void ProductIdentifier::setProductId(const std::string& hwid) {
     std::string seedString = hwid;
     for (unsigned char byte : seed) {
         seedString += std::to_string(byte);
     }
     product_id = seedString;
-    return true;
 }
 
 // Getter para el ProductId
 std::string ProductIdentifier::getProductId() const {
     return product_id;
+}
+
+void ProductIdentifier::setPath(const std::string& p) {
+    path = p + "/seed";
 }

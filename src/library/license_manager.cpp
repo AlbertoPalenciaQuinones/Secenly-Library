@@ -17,6 +17,7 @@ std::string LicenseManager::generateLicenseId(const std::string& productId) {
 
     size_t length = productId.length();
 
+    // Generar 4 hashes de diferentes fragmentos del ProductId
     for (int i = 0; i < 4; i++) {
         size_t inicio = i * length / 4;
         size_t fin = (i + 1) * length / 4;
@@ -24,7 +25,6 @@ std::string LicenseManager::generateLicenseId(const std::string& productId) {
         hashHex[i] = generateHash(productId, inicio, fin);
         hashBytes[i] = hexToBytes(hashHex[i]);
     }
-    
     
     // XOR en cascada - método de mezcla
     std::vector<unsigned char> mixed = hashBytes[0];
@@ -44,6 +44,7 @@ std::string LicenseManager::generateHash(const std::string& productId, size_t in
 
 
 unsigned char LicenseManager::hexCharToValue(char c) {
+    // Convierte un carácter hexadecimal a su valor numérico
     if (c >= '0' && c <= '9') return c - '0';
     if (c >= 'a' && c <= 'f') return c - 'a' + 10;
     if (c >= 'A' && c <= 'F') return c - 'A' + 10;
