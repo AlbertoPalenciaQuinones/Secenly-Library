@@ -46,7 +46,7 @@ bool ProductIdentifier::createSeed() {
     std::mt19937 gen(random());
     std::uniform_int_distribution<uint32_t> dist;
 
-    // Se escriben 64 valores aleatorios de 4 bytes cada, total = 256 bytes
+    // Se escriben 64 valores aleatorios de 4 bytes cada uno, total = 256 bytes
     for (int i = 0; i < 64; ++i) {
         uint32_t value = dist(gen);
         file.write(reinterpret_cast<const char*>(&value), sizeof(value));

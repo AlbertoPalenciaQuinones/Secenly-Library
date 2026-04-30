@@ -27,7 +27,12 @@ int main() {
         return 1;
     }
 
+    int seed_size = product.readSeedBytes().size();
+    std::cout << "Semilla leída con éxito. Tamaño: " << seed_size << " bytes." << std::endl;
+
     product.setProductId(hwManager.getHwid());
+
+    std::cout << "Product ID: " << product.getProductId() << std::endl;
 
     std::string licenseId = lcManager.generateLicenseId(product.getProductId());
 
