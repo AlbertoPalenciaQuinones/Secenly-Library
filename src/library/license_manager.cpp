@@ -77,7 +77,6 @@ std::string LicenseManager::bytesToHex(const std::vector<unsigned char>& bytes) 
     return oss.str();
 }
 
-
 std::vector<unsigned char> LicenseManager::xorBuffers(const std::vector<unsigned char>& a, const std::vector<unsigned char>& b) {
     size_t n = std::min(a.size(), b.size());
     std::vector<unsigned char> result(n);
