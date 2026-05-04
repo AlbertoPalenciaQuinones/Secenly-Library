@@ -57,12 +57,21 @@ int main() {
         return 1;
     }
 
+    int seed_size = product.readSeedBytes().size();
+    std::cout << "Semilla leída con éxito. Tamaño: " << seed_size << " bytes." << std::endl;
+
     product.setProductId(hwManager.getHwid());
 
+<<<<<<< HEAD
     try {
         std::string license_path;
         std::cout << "\nIntroduce la ruta del archivo de licencia (DER CMS): ";
         std::cin >> license_path;
+=======
+    std::cout << "Product ID: " << product.getProductId() << std::endl;
+
+    std::string licenseId = lcManager.generateLicenseId(product.getProductId());
+>>>>>>> f308f880cc35494dab97d042423a2a86eafdbaf0
 
         auto data = readFile(license_path);
 
