@@ -5,7 +5,6 @@
 #include <vector>
 #include <cstdint>
 
-
 #include "product_identifier.h"
 #include "license_manager.h"
 #include "hardware_manager.h"
