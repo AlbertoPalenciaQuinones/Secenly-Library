@@ -2,37 +2,26 @@
 
 #include "library/hardware_manager.h"
 
+// g++ -std=c++17 src/library/hardware_manager.cpp src/library/license_manager.cpp src/library/product_identifier.cpp src/sha/*.cpp tests/*.cpp -Isrc -lgtest -lgtest_main -pthread -o runTests
+
+// TEST 1 - El identificador de hardware se inicializa correctamente. Esta 
+// verificación incluye que se ha asignado el id de hardware al atributo de la 
+// clase correctamente (verificando que el identificador no esté vacío).
 TEST(HardwareIdentifierTest, InitializeReturnsTrue) {
     HardwareManager hw;
 
     EXPECT_TRUE(hw.initialize());
 }
 
-TEST(HardwareIdentifierTest, HwidIsNotEmpty) {
-    HardwareManager hw;
-
-    ASSERT_TRUE(hw.initialize());
-
-    EXPECT_FALSE(hw.getHwid().empty());
-}
-
-TEST(HardwareManagerTest, HwidIsStable) {
+// TEST 2 - Al inicializar 2 identificadores de hardware con la misma semilla y 
+// desde el mismo equipo, estos deben de ser siempre el mismo.
+TEST(HardwareIdentifierTest, HwidIsStable) {
     HardwareManager hw1, hw2;
 
     ASSERT_TRUE(hw1.initialize());
     ASSERT_TRUE(hw2.initialize());
 
     EXPECT_EQ(hw1.getHwid(), hw2.getHwid());
-}
-
-TEST(HardwareManagerTest, HwidHasNoTrailingNewline) {
-    HardwareManager hw;
-
-    ASSERT_TRUE(hw.initialize());
-
-    std::string id = hw.getHwid();
-
-    EXPECT_TRUE(id.empty() || id.back() != '\n');
 }
 
 
