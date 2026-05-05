@@ -1,9 +1,9 @@
 #ifndef LICENSE_H
 #define LICENSE_H
 
-#include <string>
-#include <cstdint>
 #include <chrono>
+#include <cstdint>
+#include <string>
 
 struct License {
     std::string id;

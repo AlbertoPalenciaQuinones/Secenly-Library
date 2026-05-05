@@ -1,9 +1,11 @@
 #include "license_parser.h"
+
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
 #include <vector>
-#include <sstream>
-#include <iomanip>
 
+namespace {
 // Estructura para leer el binario de DER. Recorre un buffer leyendo toda la
 // sucesión de bytes de forma ordenada. Funciona como un cursor de lectura.
 struct DerReader {
@@ -12,13 +14,13 @@ struct DerReader {
     size_t pos = 0;
 
     // Lee un byte y avanza su posición en 1
-    uint8_t readByte() {
+    uint8_t ReadByte() {
         if (pos >= size) throw std::runtime_error("EOF");
         return data[pos++];
     }
     
-    // Lee un bloque de bytes
-    std::vector<uint8_t> readBytes(size_t len) {
+    // Lee una secuencia de bytes
+    std::vector<uint8_t> ReadBytes(size_t len) {
         if (pos + len > size) throw std::runtime_error("Overflow");
         std::vector<uint8_t> out(data + pos, data + pos + len);
         pos += len;
@@ -26,8 +28,8 @@ struct DerReader {
     }
 
     // Lee la longitud de una secuencia de bytes
-    size_t readLength() {
-        uint8_t first = readByte();
+    size_t ReadLength() {
+        uint8_t first = ReadByte();
 
         if ((first & 0x80) == 0)
             return first;
@@ -38,37 +40,37 @@ struct DerReader {
 
         size_t len = 0;
         for (size_t i = 0; i < numBytes; i++) {
-            len = (len << 8) | readByte();
+            len = (len << 8) | ReadByte();
         }
 
         return len;
     }
 };
 
-// Funciones para parsear las licencias (lectura y conversión de datos)
+// FUNCIONES PARA PARSEAR LAS LICENCIAS:
 
 // Lector de Utf8String para extraer el id y las notas de la licencia
-std::string readUtf8String(DerReader& r) {
-    if (r.readByte() != 0x0C)
+std::string ReadUtf8String(DerReader& r) {
+    if (r.ReadByte() != 0x0C)
         throw std::runtime_error("Expected UTF8String");
 
-    size_t len = r.readLength();
-    auto bytes = r.readBytes(len);
+    size_t len = r.ReadLength();
+    auto bytes = r.ReadBytes(len);
     return std::string(bytes.begin(), bytes.end());
 }
 
 // Lector de GeneralizedTime para extraer las fechas de las licencias
-std::string readGeneralizedTime(DerReader& r) {
-    if (r.readByte() != 0x18)
+std::string ReadGeneralizedTime(DerReader& r) {
+    if (r.ReadByte() != 0x18)
         throw std::runtime_error("Expected GeneralizedTime");
 
-    size_t len = r.readLength();
-    auto bytes = r.readBytes(len);
+    size_t len = r.ReadLength();
+    auto bytes = r.ReadBytes(len);
     return std::string(bytes.begin(), bytes.end());
 }
 
 // Parser de GeneralizedTime para convertir el tiempo
-std::chrono::system_clock::time_point parseGeneralizedTime(const std::string& str) {
+std::chrono::system_clock::time_point ParseGeneralizedTime(const std::string& str) {
     std::tm tm = {};
 
     std::istringstream ss(str);
@@ -78,19 +80,23 @@ std::chrono::system_clock::time_point parseGeneralizedTime(const std::string& st
         throw std::runtime_error("Error parseando fecha ASN.1");
     }
 
-    // Convertir a time_point (UTC)
-    std::time_t time = timegm(&tm);
+    // Convertir el tiempo dependiendo del SO
+    #ifdef _WIN32
+        std::time_t time = _mkgmtime(&tm);
+    #else
+        std::time_t time = timegm(&tm);
+    #endif
 
     return std::chrono::system_clock::from_time_t(time);
 }
 
 // Lector de enteros para extraer el intervalo del latido de la licencia
-int32_t readInteger(DerReader& r) {
-    if (r.readByte() != 0x02)
+int32_t ReadInteger(DerReader& r) {
+    if (r.ReadByte() != 0x02)
         throw std::runtime_error("Expected INTEGER");
 
-    size_t len = r.readLength();
-    auto bytes = r.readBytes(len);
+    size_t len = r.ReadLength();
+    auto bytes = r.ReadBytes(len);
 
     int32_t value = 0;
     for (uint8_t b : bytes)
@@ -99,27 +105,33 @@ int32_t readInteger(DerReader& r) {
     return value;
 }
 
+}
+
 // Parser principal de la licencia
-License parseLicense(const uint8_t* data, size_t size) {
+License ParseLicense(const uint8_t* data, size_t size) {
     // Lector de la sucesión de bytes codificados en DER
     DerReader r{data, size};
 
     // Primer bloque ha de ser una secuencia señalando a una sucesión de atributos
-    if (r.readByte() != 0x30)
+    if (r.ReadByte() != 0x30)
         throw std::runtime_error("Expected SEQUENCE");
 
-    size_t seqLen = r.readLength();
+    size_t seqLen = r.ReadLength();
     size_t seqEnd = r.pos + seqLen;
+
+    if (r.pos + seqLen > r.size) {
+        throw std::runtime_error("Invalid SEQUENCE length");
+    }
 
     License lic;
 
     // Leer en orden los atributos de la licencia
-    lic.id = readUtf8String(r);
-    lic.creation_date = parseGeneralizedTime(readGeneralizedTime(r));
-    lic.expiration_date = parseGeneralizedTime(readGeneralizedTime(r));
-    lic.last_use_date = parseGeneralizedTime(readGeneralizedTime(r));
-    lic.heartbeat_interval = readInteger(r);
-    lic.notes = readUtf8String(r);
+    lic.id = ReadUtf8String(r);
+    lic.creation_date = ParseGeneralizedTime(ReadGeneralizedTime(r));
+    lic.expiration_date = ParseGeneralizedTime(ReadGeneralizedTime(r));
+    lic.last_use_date = ParseGeneralizedTime(ReadGeneralizedTime(r));
+    lic.heartbeat_interval = ReadInteger(r);
+    lic.notes = ReadUtf8String(r);
 
     if (r.pos != seqEnd)
         throw std::runtime_error("Unexpected trailing data");

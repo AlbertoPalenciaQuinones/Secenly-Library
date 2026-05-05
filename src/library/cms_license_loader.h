@@ -1,10 +1,10 @@
 #ifndef CMS_LICENSE_LOADER_H
 #define CMS_LICENSE_LOADER_H
 
-#include <vector>
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 struct CmsResult {
     std::vector<uint8_t> content;
@@ -13,7 +13,7 @@ struct CmsResult {
 
 class CmsLicenseLoader {
 public:
-    CmsResult extractLicenseDer(const uint8_t* data, size_t size);
+    CmsResult ExtractLicenseDer(const uint8_t* data, size_t size);
 };
 
 #endif // CMS_LICENSE_LOADER_H
