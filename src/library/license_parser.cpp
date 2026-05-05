@@ -25,7 +25,7 @@ struct DerReader {
         return out;
     }
 
-    // Lee la longitud de la secuencia de bytes
+    // Lee la longitud de una secuencia de bytes
     size_t readLength() {
         uint8_t first = readByte();
 
@@ -101,8 +101,10 @@ int32_t readInteger(DerReader& r) {
 
 // Parser principal de la licencia
 License parseLicense(const uint8_t* data, size_t size) {
+    // Lector de la sucesión de bytes codificados en DER
     DerReader r{data, size};
 
+    // Primer bloque ha de ser una secuencia señalando a una sucesión de atributos
     if (r.readByte() != 0x30)
         throw std::runtime_error("Expected SEQUENCE");
 
@@ -111,6 +113,7 @@ License parseLicense(const uint8_t* data, size_t size) {
 
     License lic;
 
+    // Leer en orden los atributos de la licencia
     lic.id = readUtf8String(r);
     lic.creation_date = parseGeneralizedTime(readGeneralizedTime(r));
     lic.expiration_date = parseGeneralizedTime(readGeneralizedTime(r));

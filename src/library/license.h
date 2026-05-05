@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LICENSE_H
+#define LICENSE_H
 
 #include <string>
 #include <cstdint>
@@ -12,3 +13,5 @@ struct License {
     int32_t heartbeat_interval;
     std::string notes;
 };
+
+#endif // LICENSE_H
