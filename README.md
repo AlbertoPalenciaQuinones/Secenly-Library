@@ -1,5 +1,5 @@
 # Secenly Library
-Esta biblioteca forma parte del sistema **Secenly** y está diseñada para la gestión, generación y validación de licencias.
+Esta biblioteca forma parte del sistema **Secenly** y fundamentalmente, está diseñada para cumplir con la validación de licencias. La herramienta **Secenly** se encarga de realizar todo tipo de acciones con las licencias: creación, eliminación, modificación y consulta de licencias (entre otras). Además, ella se encarga de generar el **ContentInfo**, el cual contiene el **SignedData**, el cual contiene la licencia, haciendo uso de la serialización en formato *ASN.1* y codificación en *DER*.
 
 # Modificación y personalización
 A continuación se expone toda la información relevante sobre **cómo modificar la biblioteca** según las necesidades de cada usuario. La librería es **open-source**, lo que significa que puede ser utilizada libremente y adaptada a distintos entornos o proyectos.
