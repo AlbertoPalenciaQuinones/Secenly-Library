@@ -129,7 +129,6 @@ License ParseLicense(const uint8_t* data, size_t size) {
     lic.id = ReadUtf8String(r);
     lic.creation_date = ParseGeneralizedTime(ReadGeneralizedTime(r));
     lic.expiration_date = ParseGeneralizedTime(ReadGeneralizedTime(r));
-    lic.last_use_date = ParseGeneralizedTime(ReadGeneralizedTime(r));
     lic.heartbeat_interval = ReadInteger(r);
     lic.notes = ReadUtf8String(r);
 
