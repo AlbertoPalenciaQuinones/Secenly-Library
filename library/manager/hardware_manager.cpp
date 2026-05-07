@@ -28,10 +28,28 @@ std::string Exec(const std::string& cmd) {
     return result;
 }
 
-// Ejecuta un comando u otro de obtención del hwid dependiendo del SO.
+/**
+ * Genera el identificador del hardware.
+ *
+ * El comportamiento actual es la ejecución de un comando.
+ *
+ * Este comportamiento puede ser modificado por cualquiera que utilice la 
+ * biblioteca con el fin de que sea ajustable a las necesidades de cada usuario.
+ *
+ * La función cumple con las siguientes necesidades:
+ *     - Generación de identificador único
+ *     - Distinto comando para Linux y Windows
+ * 
+ * Debe saber que puede añadir distintos procedimientos escribiendo nuevas
+ * funciones, pero todas ellas deben funcionar de forma correcta para no
+ * romper el mecanismo de obtención del identificador.
+ * 
+ * Otro aspecto a tener en cuenta es que la modificación en Secenly-Library
+ * de la generación del identificador de hardware crea la necesidad de su
+ * modificación en la herramienta Secenly, siempre y cuando se haya optado
+ * utilizarla a la hora de generar licencias de software.
+ */
 std::string HardwareManager::ObtainHwid() {
-    //----------------------------------------
-    //PROCEDIMIENTO DE OBTENCIÓN DE HWID
     std::string id;
     #ifdef __linux__
         // Se usa machine-id en Linux porque es persistente entre reinicios
@@ -43,8 +61,6 @@ std::string HardwareManager::ObtainHwid() {
     #ifdef _WIN64
         id = Exec("(Get-CimInstance Win32_ComputerSystemProduct).UUID");
     #endif
-    //FIN DE PROCEDIMIENTO OBTENCIÓN DE HWID
-    //----------------------------------------
     return id;
 }
 

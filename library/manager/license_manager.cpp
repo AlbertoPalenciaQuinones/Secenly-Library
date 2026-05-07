@@ -10,12 +10,12 @@
 
 // Función única de esta misma clase
 namespace {
-// Genera el hash de un fragmento del identificador de producto
-std::string GenerateHash(const std::string& product_id, size_t inicio, size_t fin) {
-    SHA512 sha;
-    std::string fragment = product_id.substr(inicio, fin - inicio);
-    return sha.hash(fragment); 
-}
+    // Genera el hash de un fragmento del identificador de producto
+    std::string GenerateHash(const std::string& product_id, size_t inicio, size_t fin) {
+        SHA512 sha;
+        std::string fragment = product_id.substr(inicio, fin - inicio);
+        return sha.hash(fragment); 
+    }
 
 }
 
@@ -24,7 +24,28 @@ LicenseManager::LicenseManager(const std::string& product_id) {
     license_id = GenerateLicenseId(product_id);
 }
 
-// Genera el identificador de licencia a partir del de producto
+/**
+ * Genera el identificador de la licencia a partir del identificador de producto.
+ *
+ * El comportamiento actual es una sucesión de hashes + operación XOR.
+ *
+ * Este comportamiento puede ser modificado por cualquiera que utilice la 
+ * biblioteca con el fin de que sea ajustable a las necesidades de cada usuario.
+ *
+ * La función cumple con las siguientes necesidades:
+ *     - Aportar integridad
+ *     - Ofuscar la integridad
+ *     - Validar  el identificador licencia
+ * 
+ * Debe saber que puede añadir distintos procedimientos escribiendo nuevas
+ * funciones, pero todas ellas deben funcionar de forma correcta para no
+ * romper el mecanismo de validación de identificador.
+ * 
+ * Otro aspecto a tener en cuenta es que la modificación en Secenly-Library
+ * de la generación del identificador de licencia crea la necesidad de su
+ * modificación en la herramienta Secenly, siempre y cuando se haya optado
+ * utilizarla a la hora de generar licencias de software.
+ */
 std::string LicenseManager::GenerateLicenseId(const std::string& product_id) {
     std::vector<std::string> hash_hex(4);
     std::vector<std::vector<unsigned char>> hash_bytes(4);

@@ -3,6 +3,15 @@
 #include <string>
 #include <stdexcept>
 
+/**
+ * Define el nombre de las distintas excepciones.
+ *
+ * Se pueden añadir las excepciones que se necesiten únicamente añadiendo 
+ * su nombre a la enumeración.
+ * 
+ * El nombre de la excepción nueva será decisión del usuario que por alguna
+ * necesidad, debe añadirla. No debe tocar absolutamente nada más de la clase.
+ */
 enum class LicenseError {
     InvalidSignature,
     UnauthorizedCert,

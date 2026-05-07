@@ -132,12 +132,12 @@ void Cleanup(CMS_ContentInfo* cms, X509* cert) {
 }
 
 // Extraer la licencia del archivo DER
-CmsResult CmsLicenseLoader::ExtractLicenseDer(const uint8_t* data, size_t size) {
+CmsResult CmsLicenseLoader::ExtractLicenseDer(const uint8_t* data, size_t size, const std::string& cert_path) {
     std::vector<std::string> signer_names;
     CmsResult result_struct;
 
     CMS_ContentInfo* cms = ParseCms(data, size);
-    X509* trusted_cert = LoadCertificate("cert.pem");
+    X509* trusted_cert = LoadCertificate(cert_path);
 
     if (!IsTrustedSigner(cms, trusted_cert, signer_names)) {
         Cleanup(cms, trusted_cert);

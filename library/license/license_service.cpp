@@ -57,6 +57,7 @@ bool CheckExpiration(const std::chrono::system_clock::time_point& expiration_dat
 }
 
 void AntiTamper() {
+    
 }
 
 // Función que actualiza el último uso de la licencia y comprueba expiración por latido
@@ -64,7 +65,31 @@ void LicenseService::HeartbeatAlgorithm(int& beat) {
 
 }
 
-void LicenseService::ValidateLicense(const std::vector<uint8_t>& data, std::string& seed_path) {
+/**
+ * Valida la licencia para asegurar que se utilice una licencia válida.
+ *
+ * El comportamiento actual es, en primer lugar, la validación de la firma y 
+ * del certificado, en segundo lugar, la obtención del objeto de tipo licencia
+ * y por último, la validación de sus campos y otros mecanismos de seguridad.
+ *
+ * Este comportamiento puede ser modificado por cualquiera que utilice la 
+ * biblioteca con el fin de que sea ajustable a las necesidades de cada usuario.
+ *
+ * La función cumple con las siguientes necesidades:
+ *     - Validación de firma y certificado
+ *     - Validación de parámetros de licencia
+ *     - Mecanismo anti-tamper
+ * 
+ * Debe saber que puede añadir distintos procedimientos escribiendo nuevas
+ * funciones, pero todas ellas deben funcionar de forma correcta para no
+ * romper el mecanismo de validación de licencia.
+ * 
+ * Además, debe saber que debe añadir tantas funciones nuevas como mecanismos
+ * de seguridad se quieran implementar en la biblioteca. Este es el corazón de
+ * la biblioteca, se recomienda que si realmente quiere modificar su 
+ * funcionamiento, añada o elimine mecanismos de seguridad de esta misma clase.
+ */
+void LicenseService::ValidateLicense(const std::vector<uint8_t>& data, const std::string& seed_path, const std::string& cert_path) {
     // Identificador de licencia esperado
     std::string lic_id = LicenseService::GenerateLicenseId(seed_path);
     
@@ -72,7 +97,7 @@ void LicenseService::ValidateLicense(const std::vector<uint8_t>& data, std::stri
     CmsLicenseLoader loader;
 
     // Extraer el bloque de datos de la licencia para manejar
-    auto result = loader.ExtractLicenseDer(data.data(), data.size());
+    auto result = loader.ExtractLicenseDer(data.data(), data.size(), cert_path);
 
     // Parsear licencia
     License lic = ParseLicense(result.content.data(), result.content.size());

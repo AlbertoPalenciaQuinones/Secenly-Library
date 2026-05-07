@@ -13,7 +13,7 @@ struct CmsResult {
 
 class CmsLicenseLoader {
 public:
-    CmsResult ExtractLicenseDer(const uint8_t* data, size_t size);
+    CmsResult ExtractLicenseDer(const uint8_t* data, size_t size, const std::string& cert_path);
 };
 
 #endif // CMS_LICENSE_LOADER_H
