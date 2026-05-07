@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "library/license_manager.h"
-#include "sha/SHA512.h"
+#include "../library/manager/license_manager.h"
+#include "../library/utils/SHA512.h"
 
 // TEST 1 - El hash se genera con una longitud correcta. Esa longitud es de 128 
 // caracteres en hexadecimal.
