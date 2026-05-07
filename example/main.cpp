@@ -16,32 +16,45 @@
 
 int main() {
     try {
+        // Obtener la ruta de la semilla
         std::string seed_path ;
-        std::cout << "Ingrese la ruta para almacenar la semilla: ";
+        std::cout << "[INPUT] Enter the path to your seed file: ";
         std::cin >> seed_path;
 
         // Obtener la ruta del archivo de licencia
         std::string license_path;
-        std::cout << "\nIntroduce la ruta del archivo de licencia (DER CMS): ";
+        std::cout << "[INPUT] Enter the path to your license file: ";
         std::cin >> license_path;
 
+        std::ifstream license_file(license_path, std::ios::binary);
+        if (!license_file) {
+            throw std::runtime_error("[ERROR] An error happend oppening the license file");
+        }
+
+        // Obtener la ruta del archivo de certificado
+        std::string cert_path;
+        std::cout << "[INPUT] Enter the path to your certificate file: ";
+        std::cin >> cert_path;
+
         // Crear flujo de entrada de archivo para leerlo
-        std::ifstream file(license_path, std::ios::binary);
-        if (!file) {
-            throw std::runtime_error("No se pudo abrir el archivo");
+        std::ifstream cert_file(cert_path, std::ios::binary);
+        if (!cert_file) {
+            throw std::runtime_error("[ERROR] An error happend oppening the certificate file");
         }
 
         // Guardar todos los datos del archivo
-        auto data = std::vector<uint8_t>(std::istreambuf_iterator<char>(file), std::istreambuf_iterator<char>());
-        std::cout << "\n[INFO] Archivo cargado correctamente\n";
-        std::cout << "[INFO] Tamaño: " << data.size() << " bytes\n";
+        auto data = std::vector<uint8_t>(std::istreambuf_iterator<char>(license_file), std::istreambuf_iterator<char>());
+        std::cout << "\n[INFO] License loaded correctly!\n";
+        std::cout << "[INFO] Size: " << data.size() << " bytes\n";
 
-        LicenseService::ValidateLicense(data, seed_path);
+        LicenseService::ValidateLicense(data, seed_path, cert_path);
 
     } catch (const std::exception& e) {
-        std::cerr << "\n[ERROR] Fallo procesando licencia:\n";
+        std::cerr << "\n[ERROR] Error procesing the license:\n";
         std::cerr << e.what() << std::endl;
     }
+
+    //LicenseService::ValidateLicense(data, seed_path, cert_path);
 
     return 0;
 }

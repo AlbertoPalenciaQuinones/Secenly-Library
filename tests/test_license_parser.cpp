@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "../library/license/license_parser.h"
 
+// TEST 1 - Se comprueba que al parsear la licencia, al hacerlo sobre unos
+// bytes incorrectos, salte una excepción.
 TEST(ParserTest, InvalidSequenceThrows) {
     std::vector<uint8_t> invalid = {0x01, 0x02, 0x03};
 
@@ -10,6 +12,8 @@ TEST(ParserTest, InvalidSequenceThrows) {
     );
 }
 
+// TEST 2 - Detector de basura en la licencia. Al parsearla con esa basura
+// extra, debe saltar una excepción.
 TEST(ParserTest, TrailingDataThrows) {
     std::vector<uint8_t> data = {
         0x30, 0x06,
