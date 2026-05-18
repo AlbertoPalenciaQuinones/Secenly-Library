@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "license_exception.h"
-#include "../utils/crypto_utils.h"
+#include "utils/crypto_utils.h"
 
 #include <openssl/bio.h>
 #include <openssl/cms.h>
@@ -20,16 +20,12 @@ namespace {
     X509* LoadCertificate(const std::string& path) {
         FILE* file = fopen(path.c_str(), "r");
 
-        if (!file) {
-            throw std::runtime_error("No se pudo abrir cert.pem");
-        }
-
         // Variable X509 para almacenar el certificado para validar la licencia
         X509* cert = PEM_read_X509(file, nullptr, nullptr, nullptr);
         fclose(file);
 
         if (!cert) {
-            throw std::runtime_error("Error leyendo cert.pem");
+            throw std::runtime_error("[ERROR] The file reading failed.");
         }
 
         return cert;
@@ -42,7 +38,7 @@ namespace {
 
         // Se calcula el hash del certificado
         if (!X509_digest(cert, EVP_sha256(), md, &len)) {
-            throw std::runtime_error("Error calculando fingerprint");
+            throw std::runtime_error("[ERROR] The process of calculating fingerprint failed.");
         }
 
         std::string result;
@@ -61,46 +57,56 @@ namespace {
         CMS_ContentInfo* cms = d2i_CMS_ContentInfo(nullptr, &p, size);
         if (!cms) {
             ERR_print_errors_fp(stderr);
-            throw std::runtime_error("Error parsing CMS");
+            throw std::runtime_error("[ERROR] The process of parsing CMS failed.");
         }
 
         return cms;
     }
 
-    // Verificar que el firmante es de confianza
-    bool IsTrustedSigner(CMS_ContentInfo* cms, X509* trusted_cert, std::vector<std::string>& signer_names) {
-        std::string trusted_fp = GetFingerprint(trusted_cert);
-
-        STACK_OF(X509)* certs_in_cms = CMS_get1_certs(cms);
-        if (!certs_in_cms) {
-            return false;
-        }
-
-        bool trusted_found = false;
-
-        for (int i = 0; i < sk_X509_num(certs_in_cms); ++i) {
-            X509* cert = sk_X509_value(certs_in_cms, i);
-
-            // Obtener nombre del firmante
-            char subject[256];
-            X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject));
-            signer_names.push_back(subject);
-
-            // Comparar fingerprint
-            if (GetFingerprint(cert) == trusted_fp) {
-                trusted_found = true;
-            }
-        }
-
-        sk_X509_pop_free(certs_in_cms, X509_free);
-
-        return trusted_found;
+    // Libera los recursos asociados al CMS y certificado
+    void Cleanup(CMS_ContentInfo* cms, X509* cert) {
+        CMS_ContentInfo_free(cms);
+        X509_free(cert);
     }
 
 }
 
+// Verificar que el firmante es de confianza
+bool CmsLicenseLoader::IsTrustedSigner(
+    CMS_ContentInfo* cms, 
+    X509* trusted_cert, 
+    std::vector<std::string>& signer_names
+) {
+    std::string trusted_fp = GetFingerprint(trusted_cert);
+
+    STACK_OF(X509)* certs_in_cms = CMS_get1_certs(cms);
+    if (!certs_in_cms) {
+        return false;
+    }
+
+    bool trusted_found = false;
+
+    for (int i = 0; i < sk_X509_num(certs_in_cms); ++i) {
+        X509* cert = sk_X509_value(certs_in_cms, i);
+
+        // Obtener nombre del firmante
+        char subject[256];
+        X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject));
+        signer_names.push_back(subject);
+
+        // Comparar fingerprint
+        if (GetFingerprint(cert) == trusted_fp) {
+            trusted_found = true;
+        }
+    }
+
+    sk_X509_pop_free(certs_in_cms, X509_free);
+
+    return trusted_found;
+}
+
 // Verificar firma y extraer contenido 
-std::vector<uint8_t> VerifyAndExtractContent(CMS_ContentInfo* cms) {
+std::vector<uint8_t> CmsLicenseLoader::VerifyAndExtractContent(CMS_ContentInfo* cms) {
     BIO* out = BIO_new(BIO_s_mem());
 
     int result = CMS_verify(cms, nullptr, nullptr, nullptr, 
@@ -109,13 +115,16 @@ std::vector<uint8_t> VerifyAndExtractContent(CMS_ContentInfo* cms) {
     if (result != 1) {
         ERR_print_errors_fp(stderr);
         BIO_free(out);
-        throw LicenseException(LicenseError::InvalidSignature, "The signature is invalid");
+        throw LicenseException(LicenseError::InvalidSignature, 
+            "[ERROR] The signature is invalid."
+        );
     }
+    std::vector<uint8_t> content;
 
     BUF_MEM* mem;
     BIO_get_mem_ptr(out, &mem);
 
-    std::vector<uint8_t> content(
+    content.assign(
         reinterpret_cast<uint8_t*>(mem->data),
         reinterpret_cast<uint8_t*>(mem->data + mem->length)
     );
@@ -125,14 +134,12 @@ std::vector<uint8_t> VerifyAndExtractContent(CMS_ContentInfo* cms) {
     return content;
 }
 
-// Libera los recursos asociados al CMS y certificado
-void Cleanup(CMS_ContentInfo* cms, X509* cert) {
-    CMS_ContentInfo_free(cms);
-    X509_free(cert);
-}
-
 // Extraer la licencia del archivo DER
-CmsResult CmsLicenseLoader::ExtractLicenseDer(const uint8_t* data, size_t size, const std::string& cert_path) {
+CmsResult CmsLicenseLoader::ExtractLicenseDer(
+    const uint8_t* data, 
+    size_t size, 
+    const std::string& cert_path
+) {
     std::vector<std::string> signer_names;
     CmsResult result_struct;
 
@@ -141,7 +148,9 @@ CmsResult CmsLicenseLoader::ExtractLicenseDer(const uint8_t* data, size_t size, 
 
     if (!IsTrustedSigner(cms, trusted_cert, signer_names)) {
         Cleanup(cms, trusted_cert);
-        throw LicenseException(LicenseError::UnauthorizedCert, "The certificate is unauthorized");
+        throw LicenseException(LicenseError::UnauthorizedCert, 
+            "[ERROR] The certificate is unauthorized."
+        );
     }
 
     std::vector<uint8_t> content = VerifyAndExtractContent(cms);

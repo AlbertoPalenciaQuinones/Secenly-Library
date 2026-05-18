@@ -15,13 +15,13 @@ namespace {
 
         // Lee un byte y avanza su posición en 1
         uint8_t ReadByte() {
-            if (pos >= size) throw std::runtime_error("EOF");
+            if (pos >= size) throw std::runtime_error("[ERROR] Unexpected end of data (DER Reader)");
             return data[pos++];
         }
         
         // Lee una secuencia de bytes
         std::vector<uint8_t> ReadBytes(size_t len) {
-            if (pos + len > size) throw std::runtime_error("Overflow");
+            if (pos + len > size) throw std::runtime_error("[ERROR] Overflow (DER Reader)");
             std::vector<uint8_t> out(data + pos, data + pos + len);
             pos += len;
             return out;
@@ -36,7 +36,7 @@ namespace {
 
             size_t numBytes = first & 0x7F;
             if (numBytes == 0 || numBytes > 4)
-                throw std::runtime_error("Invalid length");
+                throw std::runtime_error("[ERROR] Invalid length (DER Reader)");
 
             size_t len = 0;
             for (size_t i = 0; i < numBytes; i++) {
@@ -52,7 +52,7 @@ namespace {
     // Lector de Utf8String para extraer el id y las notas de la licencia
     std::string ReadUtf8String(DerReader& r) {
         if (r.ReadByte() != 0x0C)
-            throw std::runtime_error("Expected UTF8String");
+            throw std::runtime_error("[ERROR] Expected UTF8String.");
 
         size_t len = r.ReadLength();
         auto bytes = r.ReadBytes(len);
@@ -62,7 +62,7 @@ namespace {
     // Lector de GeneralizedTime para extraer las fechas de las licencias
     std::string ReadGeneralizedTime(DerReader& r) {
         if (r.ReadByte() != 0x18)
-            throw std::runtime_error("Expected GeneralizedTime");
+            throw std::runtime_error("[ERROR] Expected GeneralizedTime.");
 
         size_t len = r.ReadLength();
         auto bytes = r.ReadBytes(len);
@@ -77,7 +77,7 @@ namespace {
         ss >> std::get_time(&tm, "%Y%m%d%H%M%SZ");
 
         if (ss.fail()) {
-            throw std::runtime_error("Error parseando fecha ASN.1");
+            throw std::runtime_error("[ERROR] Parsing date into ASN.1 failed.");
         }
 
         // Convertir el tiempo dependiendo del SO
@@ -93,7 +93,7 @@ namespace {
     // Lector de enteros para extraer el intervalo del latido de la licencia
     int32_t ReadInteger(DerReader& r) {
         if (r.ReadByte() != 0x02)
-            throw std::runtime_error("Expected INTEGER");
+            throw std::runtime_error("[ERROR] Expected Integer.");
 
         size_t len = r.ReadLength();
         auto bytes = r.ReadBytes(len);
@@ -139,13 +139,13 @@ License ParseLicense(const uint8_t* data, size_t size) {
 
     // Primer bloque ha de ser una secuencia señalando a una sucesión de atributos
     if (r.ReadByte() != 0x30)
-        throw std::runtime_error("Expected SEQUENCE");
+        throw std::runtime_error("[ERROR] Expected SEQUENCE.");
 
     size_t seqLen = r.ReadLength();
     size_t seqEnd = r.pos + seqLen;
 
     if (r.pos + seqLen > r.size) {
-        throw std::runtime_error("Invalid SEQUENCE length");
+        throw std::runtime_error("[ERROR] Invalid SEQUENCE length.");
     }
 
     License lic;
@@ -158,7 +158,7 @@ License ParseLicense(const uint8_t* data, size_t size) {
     lic.notes = ReadUtf8String(r);
 
     if (r.pos != seqEnd)
-        throw std::runtime_error("Unexpected trailing data");
+        throw std::runtime_error("[ERROR] There are unexpected extra bytes y the license.");
 
     return lic;
 }

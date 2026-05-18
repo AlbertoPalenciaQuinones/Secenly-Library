@@ -5,13 +5,17 @@
 #include <string>
 #include <vector>
 
-#include "../utils/crypto_utils.h"
-#include "../utils/SHA512.h"
+#include "utils/crypto_utils.h"
+#include "utils/SHA512.h"
 
 // Función única de esta misma clase
 namespace {
     // Genera el hash de un fragmento del identificador de producto
-    std::string GenerateHash(const std::string& product_id, size_t inicio, size_t fin) {
+    std::string GenerateHash(
+        const std::string& product_id, 
+        size_t inicio, 
+        size_t fin
+    ) {
         SHA512 sha;
         std::string fragment = product_id.substr(inicio, fin - inicio);
         return sha.hash(fragment); 
@@ -70,6 +74,6 @@ std::string LicenseManager::GenerateLicenseId(const std::string& product_id) {
     return CryptoUtils::BytesToHex(mixed);
 }
 
-std::string LicenseManager::GetLicenseId() const {
+const std::string LicenseManager::GetLicenseId() const {
     return license_id;
 }

@@ -6,7 +6,7 @@
 class HardwareManager {
 public:
     HardwareManager();
-    std::string GetHwid() const;
+    const std::string GetHwid() const;
 
 private:
     std::string ObtainHwid();

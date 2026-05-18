@@ -31,19 +31,19 @@ namespace fs = std::filesystem;
  * utilizarla a la hora de generar licencias de software.
  */
 bool ProductManager::Initialize(const std::string& hwid) {
-    // Comprobación de que exista el directorio donde se creará la semilla
-    if (!fs::exists(path) || !fs::is_directory(path)) {
-        fs::create_directory(path);
+    // Comprueba de que exista el directorio donde se creará la semilla
+    if (!fs::exists(path)) {
+        throw std::runtime_error("[ERROR] Seed file not found");
     }
+
     // Asegura que existe el archivo de semilla en disco
     if (!HasSeed()) {
-        if (!CreateSeed()) {
-            return false;
-        }
+        throw std::runtime_error("[ERROR] Seed file not found");
     }
 
     seed = ReadSeedBytes();
     std::string seed_string = hwid;
+
     // Se concatena el identificador de hardware con los bytes de la semilla
     for (unsigned char byte : seed) {
         seed_string += std::to_string(byte);
@@ -54,42 +54,18 @@ bool ProductManager::Initialize(const std::string& hwid) {
 
 // Comprueba que exista una semilla en la ruta
 bool ProductManager::HasSeed() const {
-    for (const auto& entry : fs::directory_iterator(path)) {
-        if (entry.path().filename() == "seed.dat") {
-            return true;
-        }
-    }
-    return false;
-}
-
-// Crear el archivo de semilla con una longitud de 256 bytes
-bool ProductManager::CreateSeed() {
-    fs::path seed_file = fs::path(path) / "seed.dat";
-    std::ofstream file(seed_file, std::ios::binary);
-    if (!file) return false;
-
-    // Preparar datos aleatorios para escribir en el archivo
-    std::random_device random;
-    std::mt19937 gen(random());
-    std::uniform_int_distribution<uint32_t> dist;
-
-    // Se escriben 64 valores aleatorios de 4 bytes cada uno, total = 256 bytes
-    for (size_t i = 0; i < 64; ++i) {
-        uint32_t value = dist(gen);
-        file.write(reinterpret_cast<const char*>(&value), sizeof(value));
-    }
-
-    return true;
+    return fs::exists(fs::path(path));
 }
 
 // Leer los bytes del archivo de semilla
 std::vector<unsigned char> ProductManager::ReadSeedBytes() const {
-    fs::path seed_file = fs::path(path) / "seed.dat";
+    fs::path seed_file = fs::path(path);
 
     // Obtiene el archivo de semilla
     std::ifstream file(seed_file, std::ios::binary);
+    
     if (!file) {
-        return {};
+        throw std::runtime_error("[ERROR] Failed to read seed file");
     }
 
     return std::vector<unsigned char>(
@@ -98,10 +74,10 @@ std::vector<unsigned char> ProductManager::ReadSeedBytes() const {
     );
 }
 
-std::string ProductManager::GetProductId() const {
+const std::string& ProductManager::GetProductId() const {
     return product_id;
 }
 
 void ProductManager::SetPath(const std::string& p) {
-    path = (fs::path(p) / "seed").string();
+    path = fs::path(p).string();
 }

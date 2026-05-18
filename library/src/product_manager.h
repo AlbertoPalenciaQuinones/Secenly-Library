@@ -7,17 +7,21 @@
 class ProductManager {
 public:
     bool Initialize(const std::string& hwid);
+
     std::vector<unsigned char> ReadSeedBytes() const;
-    std::string GetProductId() const;
+
+    const std::string& GetProductId() const;
+
     void SetPath(const std::string& p);
 
 private:
+    bool HasSeed() const;
+
+    bool CreateSeed();
+
+    std::string product_id;
     std::vector<unsigned char> seed;
     std::string path;
-    std::string product_id;
-
-    bool HasSeed() const;
-    bool CreateSeed();
 };
 
 #endif // PRODUCT_IDENTIFIER_H

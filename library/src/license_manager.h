@@ -6,14 +6,13 @@
 class LicenseManager {
 public:
     LicenseManager(const std::string& product_id);
-    std::string GetLicenseId() const;
+
+    const std::string GetLicenseId() const;
 
 private:
-    std::string GenerateLicenseId(const std::string& path);
+    std::string GenerateLicenseId(const std::string& product_id);
 
     std::string license_id;
 };
 
 #endif // LICENSE_IDENTIFIER_H
-
-
