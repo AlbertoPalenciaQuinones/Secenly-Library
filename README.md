@@ -12,7 +12,7 @@ Al utilizar la librería como mecanismo de validación de licencias, ha de tener
 Las funciones que pueden ser utilizadas desde los usuarios para realizar dicho proceso son:
 - `ObtainLicense`    →  obtiene la licencia parseándola a un **objeto c++** para realizar los mecanismos de validación.
 - `ValidateInitial`  →  realiza la primera validación de la licencia, comprobando que sus campos son correctos. Estos procesos son: **comprobación de que el identificador de licencia coincide con el asociado al equipo** y **comprobación de licencia expirada**.
-- `ValidateRuntime`  → valida una licencia en tiempo de ejecución para asegurar que una licencia que **expira** en tiempo de ejecución, obliga al software detenerse.
+- `ValidateRuntime`  → valida una licencia en **tiempo de ejecución** para asegurar que una licencia no haya expirado en tiempo de ejecución, obligando detener el software.
 
 # Modificación y personalización
 A continuación se expone toda la información relevante sobre **cómo modificar la biblioteca** según las necesidades de cada usuario. La librería es **open-source**, lo que significa que puede ser utilizada libremente y adaptada a distintos entornos o proyectos.
