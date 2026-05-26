@@ -29,12 +29,19 @@ Si se quieren llevar a cabo modificaciones en la librería, se recomienda que an
 # Componentes personalizables
 Las siguientes funciones han sido diseñadas para poder modificarse según las necesidades del usuario:
 
-- `library/manager/license_manager.cpp` → `GenerateLicenseId`
-- `library/manager/hardware_manager.cpp` → `ObtainHwid`
-- `library/manager/product_manager.cpp` → `Initialize`
-- `library/license/license_parser.cpp` → `ParseLicense`
-- `library/license/license_service.cpp` → `ValidateLicense`
-- `library/license/license.h` → `LicenseError` (enum)
-- `library/license/license_exception.h` → `License` (struct)
+- `library/src/hardware_manager.cpp` → `ObtainHwid`
+- `library/src/product_manager.cpp` → `Initialize`
+- `library/src/license_manager.cpp` → `GenerateLicenseId`
+- `library/src/license_parser.cpp` → `ParseLicense`
+- `library/src/license_exception.h` → `License` (struct)
+- `library/src/license.h` → `LicenseError` (enum)
+- `library/src/license_service.cpp` → `ValidateLicenseInitial`
+- `library/src/anti_tamper.cpp` → `Validate`
+- `library/src/anti_tamper.cpp` → `CheckTamper`
 
 Estas funciones contienen comentarios explicativos directamente en el código, por lo que no se detalla aquí su funcionamiento. Por motivos de seguridad e integridad, se recomienda **no modificar**: procesos de validación criptográfica (CMS / firma), lógica interna de verificación de integridad y estructuras críticas del sistema sin comprender su impacto. Además, al modificar la biblioteca debe tener en cuenta que puede romperse la compatibilidad con licencias existentes y que cambios en la generación del ID afectan a todo el sistema.
+
+## Validación de licencias
+Esta sección corresponde al corazón de la biblioteca, ya que su propósito es que trabaje coordinadamente con la herramienta Secenly, la cual se encarga de generar licencias y manejarlas para realizar todo tipo de acciones con ellas y la biblioteca se encarga de leerlas y validarlas para poder utilizar el software propietario. 
+
+Las funciones que correspon
