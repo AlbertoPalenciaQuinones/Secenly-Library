@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace secenly::internal {
+
 class HardwareManager {
 public:
     HardwareManager();
@@ -13,5 +15,7 @@ private:
 
     std::string hwid;
 };
+
+}
 
 #endif // HARDWARE_MANAGER_H

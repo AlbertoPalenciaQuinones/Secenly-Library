@@ -107,6 +107,8 @@ namespace {
 
 }
 
+namespace secenly::internal {
+
 /**
  * Parsea la licencia en formato DER a un objeto de tipo licencia.
  *
@@ -161,4 +163,6 @@ License ParseLicense(const uint8_t* data, size_t size) {
         throw std::runtime_error("[ERROR] There are unexpected extra bytes y the license.");
 
     return lic;
+}
+
 }

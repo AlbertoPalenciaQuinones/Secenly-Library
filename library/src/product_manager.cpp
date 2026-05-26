@@ -6,6 +6,8 @@
 
 namespace fs = std::filesystem;
 
+namespace secenly::internal {
+
 /**
  * Inicializador de la semilla y el identificador de producto.
  *
@@ -80,4 +82,6 @@ const std::string& ProductManager::GetProductId() const {
 
 void ProductManager::SetPath(const std::string& p) {
     path = fs::path(p).string();
+}
+
 }

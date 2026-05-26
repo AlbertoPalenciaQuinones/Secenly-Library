@@ -42,7 +42,6 @@ namespace {
         }
 
         std::string result;
-        char buffer[3];
 
         // Se devuelve convertido a hexadecimal    
         return CryptoUtils::BytesToHex(
@@ -70,6 +69,8 @@ namespace {
     }
 
 }
+
+namespace secenly::internal {
 
 // Verificar que el firmante es de confianza
 bool CmsLicenseLoader::IsTrustedSigner(
@@ -161,4 +162,6 @@ CmsResult CmsLicenseLoader::ExtractLicenseDer(
     result_struct.signers = std::move(signer_names);
 
     return result_struct;
+}
+
 }

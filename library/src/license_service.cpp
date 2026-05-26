@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 
+#include "anti_tamper.h"
 #include "license.h"
 #include "license_exception.h"
 
@@ -27,6 +28,8 @@ namespace {
     }
 }
 
+namespace secenly::internal {
+
 bool LicenseService::CheckExpiration(const std::chrono::system_clock::time_point& expiration_date) {
     bool expirates = false;
     auto now = std::chrono::system_clock::now();
@@ -36,41 +39,17 @@ bool LicenseService::CheckExpiration(const std::chrono::system_clock::time_point
     return expirates;
 }
 
-void LicenseService::AntiTamper() {
+void LicenseService::ValidateRuntime(const License& lic) {
+    static AntiTamperManager tamper;
 
-}
+    // Anti‑tamper
+    tamper.Validate();
 
-// Para el algoritmo de latido en tiempo de ejecución
-void LicenseService::StopHeartbeat() {
-    this->running = false;
-
-    if (this->heartbeat_thread.joinable()) {
-        this->heartbeat_thread.join();
+    // Validación licencia
+    auto now = std::chrono::system_clock::now();
+    if (now > lic.expiration_date) {
+        throw std::runtime_error("[ERROR] License expired");
     }
-}
-
-// Función que verifica la licencia en tiempo de uso para comprobar su expiración
-void LicenseService::StartHeartbeatAlgorithm(License& lic) {
-    int interval = lic.heartbeat_interval;
-
-    this->heartbeat_thread = std::thread([this, lic, interval]() {
-        while (this->running) {
-            try {
-                std::cout << "[HEARTBEAT] Validating license..." << std::endl;
-                LicenseService::CheckExpiration(lic.expiration_date);
-                valid = true;
-            } catch (...) {
-                valid = false;
-                this->running = false;
-
-                std::cerr << "[HEARTBEAT] License invalid during runtime\n";
-                return;
-
-            }
-
-            std::this_thread::sleep_for(std::chrono::seconds(interval));
-        }
-    });
 }
 
 /**
@@ -97,7 +76,9 @@ void LicenseService::StartHeartbeatAlgorithm(License& lic) {
  * la biblioteca, se recomienda que si realmente quiere modificar su 
  * funcionamiento, añada o elimine mecanismos de seguridad de esta misma clase.
  */
-bool LicenseService::ValidateLicenseInitial(License& lic, const std::string& expected_id) {
+void LicenseService::ValidateLicenseInitial(License& lic, const std::string& expected_id) {
+    static AntiTamperManager tamper;
+
     std::cout << "\n==================== LICENCIA ====================\n";
     std::cout << "ID:           " << lic.id << std::endl;
     std::cout << "Creación:     " << timePointToString(lic.creation_date) << std::endl;
@@ -115,13 +96,11 @@ bool LicenseService::ValidateLicenseInitial(License& lic, const std::string& exp
         throw LicenseException(LicenseError::InvalidId,"Invalid license ID");
 
     // Validación 3 - La licencia ha expirado
-    //if (CheckExpiration(lic.expiration_date))      
-        //throw std::runtime_error("License is expired");
-
-}
-
-bool LicenseService::ValidateRuntime(License& lic) {
-    return valid;
+    if (CheckExpiration(lic.expiration_date))      
+        throw std::runtime_error("License is expired");
+        
+    // Validación 4 - Validación anti-tamper
+    tamper.Validate();
 }
 
 /*
@@ -138,3 +117,5 @@ bool LicenseService::ValidateRuntime(License& lic) {
         }
     }
 */
+
+}

@@ -9,11 +9,13 @@
 
 #include "license.h"
 
+namespace secenly::internal {
+
 class LicenseService {
 public:
-    static bool ValidateLicenseInitial(License& lic, const std::string& expected_id);
+    static void ValidateLicenseInitial(License& lic, const std::string& expected_id);
 
-    static bool ValidateRuntime(License& lic);
+    static void ValidateRuntime(const License& lic);
 
 private:
     std::atomic<bool> running{false};
@@ -26,5 +28,7 @@ private:
 
     static void AntiTamper();
 };
+
+}
 
 #endif // LICENSE_SERVICE_H

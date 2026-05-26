@@ -9,6 +9,8 @@
 #include <openssl/cms.h>
 #include <openssl/x509.h>
 
+namespace secenly::internal {
+
 struct CmsResult {
     std::vector<uint8_t> content;
     std::vector<std::string> signers;
@@ -29,5 +31,7 @@ private:
     );
     std::vector<uint8_t> VerifyAndExtractContent(CMS_ContentInfo* cms);
 };
+
+}
 
 #endif // CMS_LICENSE_LOADER_H

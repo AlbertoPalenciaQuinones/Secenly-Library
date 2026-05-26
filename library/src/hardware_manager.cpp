@@ -30,6 +30,8 @@ namespace {
     }
 }
 
+namespace secenly::internal {
+
 // Obtiene automáticamente el HWID al construir el objeto para evitar llamadas 
 // manuales posteriores.
 HardwareManager::HardwareManager() : hwid(ObtainHwid()) {} 
@@ -69,4 +71,6 @@ std::string HardwareManager::ObtainHwid() {
 
 const std::string HardwareManager::GetHwid() const {
     return hwid;
+}
+
 }

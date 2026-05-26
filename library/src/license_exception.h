@@ -3,6 +3,8 @@
 #include <string>
 #include <stdexcept>
 
+namespace secenly::internal {
+
 /**
  * Define el nombre de las distintas excepciones.
  *
@@ -32,3 +34,5 @@ public:
 private:
     LicenseError code_;
 };
+
+}

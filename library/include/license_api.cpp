@@ -6,14 +6,16 @@
 #include <iostream>
 #include <vector>
 
-#include "cms_license_loader.h"
-#include "license.h"
-#include "license_exception.h"
-#include "license_parser.h"
-#include "license_service.h"
-#include "hardware_manager.h"
-#include "license_manager.h"
-#include "product_manager.h"
+#include "src/cms_license_loader.h"
+#include "src/license.h"
+#include "src/license_exception.h"
+#include "src/license_parser.h"
+#include "src/license_service.h"
+#include "src/hardware_manager.h"
+#include "src/license_manager.h"
+#include "src/product_manager.h"
+
+using namespace secenly::internal;
 
 License LicenseAPI::ObtainLicense(
     const std::string& license_path, 
@@ -36,7 +38,7 @@ License LicenseAPI::ObtainLicense(
     return lic;
 }
 
-bool LicenseAPI::ValidateInitial(License& lic, std::string& seed_path) {
+void LicenseAPI::ValidateInitial(License& lic, std::string& seed_path) {
     HardwareManager hw;
     ProductManager product;
 
@@ -50,7 +52,7 @@ bool LicenseAPI::ValidateInitial(License& lic, std::string& seed_path) {
     // Generar ID esperado
     std::string expected_id = lic_manager.GetLicenseId();
     // Validar licencia
-    return LicenseService::ValidateLicenseInitial(lic, expected_id);
+    LicenseService::ValidateLicenseInitial(lic, expected_id);
 }
 
 bool LicenseAPI::ValidateRuntime(License& lic) {

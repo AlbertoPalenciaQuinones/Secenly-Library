@@ -23,6 +23,8 @@ namespace {
 
 }
 
+namespace secenly::internal {
+
 // Inicializa el mánager de licencias generando el identificador de licencia
 LicenseManager::LicenseManager(const std::string& product_id) {
     license_id = GenerateLicenseId(product_id);
@@ -76,4 +78,6 @@ std::string LicenseManager::GenerateLicenseId(const std::string& product_id) {
 
 const std::string LicenseManager::GetLicenseId() const {
     return license_id;
+}
+
 }

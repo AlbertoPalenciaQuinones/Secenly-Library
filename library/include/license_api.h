@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "license.h"
+#include "src/license.h"
 
 class LicenseAPI {
 public:
@@ -13,7 +13,7 @@ public:
         const std::string& data,
         const std::string& cert_path);
 
-    static bool ValidateInitial(License& lic, std::string& seed_path);
+    static void ValidateInitial(License& lic, std::string& seed_path);
 
     static bool ValidateRuntime(License& lic);
 };

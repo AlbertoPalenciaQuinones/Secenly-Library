@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+namespace secenly::internal {
+
 class ProductManager {
 public:
     bool Initialize(const std::string& hwid);
@@ -17,11 +19,11 @@ public:
 private:
     bool HasSeed() const;
 
-    bool CreateSeed();
-
     std::string product_id;
     std::vector<unsigned char> seed;
     std::string path;
 };
+
+}
 
 #endif // PRODUCT_IDENTIFIER_H

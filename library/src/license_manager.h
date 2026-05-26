@@ -3,6 +3,8 @@
 
 #include <string>
 
+namespace secenly::internal {
+
 class LicenseManager {
 public:
     LicenseManager(const std::string& product_id);
@@ -14,5 +16,7 @@ private:
 
     std::string license_id;
 };
+
+}
 
 #endif // LICENSE_IDENTIFIER_H
