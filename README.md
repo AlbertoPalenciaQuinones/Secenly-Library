@@ -14,6 +14,8 @@ Las funciones que pueden ser utilizadas desde los usuarios para realizar dicho p
 - `ValidateInitial`  →  realiza la primera validación de la licencia, comprobando que sus campos son correctos. Estos procesos son: **comprobación de que el identificador de licencia coincide con el asociado al equipo** y **comprobación de licencia expirada**.
 - `ValidateRuntime`  → valida una licencia en **tiempo de ejecución** para asegurar que una licencia no haya expirado en tiempo de ejecución, obligando detener el software.
 
+El corazón de la biblioteca es la validación y lectura de las licencias, ya que su propósito es que trabaje coordinadamente con la herramienta Secenly. Las licencias que se generen con Secenly se utilizan para acceder a software propietario.
+
 # Modificación y personalización
 A continuación se expone toda la información relevante sobre **cómo modificar la biblioteca** según las necesidades de cada usuario. La librería es **open-source**, lo que significa que puede ser utilizada libremente y adaptada a distintos entornos o proyectos.
 
@@ -40,8 +42,3 @@ Las siguientes funciones han sido diseñadas para poder modificarse según las n
 - `library/src/anti_tamper.cpp` → `CheckTamper`
 
 Estas funciones contienen comentarios explicativos directamente en el código, por lo que no se detalla aquí su funcionamiento. Por motivos de seguridad e integridad, se recomienda **no modificar**: procesos de validación criptográfica (CMS / firma), lógica interna de verificación de integridad y estructuras críticas del sistema sin comprender su impacto. Además, al modificar la biblioteca debe tener en cuenta que puede romperse la compatibilidad con licencias existentes y que cambios en la generación del ID afectan a todo el sistema.
-
-## Validación de licencias
-Esta sección corresponde al corazón de la biblioteca, ya que su propósito es que trabaje coordinadamente con la herramienta Secenly, la cual se encarga de generar licencias y manejarlas para realizar todo tipo de acciones con ellas y la biblioteca se encarga de leerlas y validarlas para poder utilizar el software propietario. 
-
-Las funciones que correspon
