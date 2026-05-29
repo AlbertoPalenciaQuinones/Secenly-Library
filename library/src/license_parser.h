@@ -1,9 +1,6 @@
 #ifndef LICENSE_PARSER_H
 #define LICENSE_PARSER_H
 
-#include <cstddef>
-#include <cstdint>
-
 #include "license.h"
 
 namespace secenly::internal {

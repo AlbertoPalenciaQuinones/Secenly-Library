@@ -2,7 +2,8 @@
 
 #include <filesystem>
 #include <fstream>
-#include <random>
+
+#include "license_exception.h"
 
 namespace fs = std::filesystem;
 
@@ -35,12 +36,16 @@ namespace secenly::internal {
 bool ProductManager::Initialize(const std::string& hwid) {
     // Comprueba de que exista el directorio donde se creará la semilla
     if (!fs::exists(path)) {
-        throw std::runtime_error("[ERROR] Seed file not found");
+        throw LicenseException(LicenseError::SeedFileNotFound, 
+            "[ERROR] Seed file not found"
+        );
     }
 
     // Asegura que existe el archivo de semilla en disco
     if (!HasSeed()) {
-        throw std::runtime_error("[ERROR] Seed file not found");
+        throw LicenseException(LicenseError::SeedFileNotFound, 
+            "[ERROR] Seed file not found"
+        );
     }
 
     seed = ReadSeedBytes();
@@ -67,7 +72,9 @@ std::vector<unsigned char> ProductManager::ReadSeedBytes() const {
     std::ifstream file(seed_file, std::ios::binary);
     
     if (!file) {
-        throw std::runtime_error("[ERROR] Failed to read seed file");
+        throw LicenseException(LicenseError::SeedFileNotFound, 
+            "[ERROR] Failed to read seed file"
+        );
     }
 
     return std::vector<unsigned char>(

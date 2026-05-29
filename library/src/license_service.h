@@ -2,10 +2,8 @@
 #define LICENSE_SERVICE_H
 
 #include <atomic>
-#include <cstdint>
 #include <string>
 #include <thread>
-#include <vector>
 
 #include "license.h"
 

@@ -1,9 +1,7 @@
 #include "crypto_utils.h"
 
 #include <iomanip>
-#include <sstream>
 #include <string>
-#include <vector>
 
 namespace {
     // Convierte un carácter hexadecimal en su valor numérico (0–15).

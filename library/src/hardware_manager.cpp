@@ -1,9 +1,9 @@
 #include "hardware_manager.h"
 
 #include <array>
-#include <cstdio>
 #include <iostream>
-#include <string>
+
+#include "license_exception.h"
 
 namespace {
     // Ejecuta el comando de obtención de identificador de hardware.
@@ -14,7 +14,10 @@ namespace {
         FILE* pipe = popen(cmd.c_str(), "r");
         
         if (!pipe) {
-            throw std::runtime_error("[ERROR] Failed to execute machine-id command.");
+            throw secenly::internal::LicenseException(
+                secenly::internal::LicenseError::HardwareIdGenerationFailed,
+                "[HWID] Failed to execute command for get HWID"
+            );
         }
 
         while (fgets(buffer.data(), buffer.size(), pipe)) {
@@ -36,7 +39,7 @@ namespace secenly::internal {
 // manuales posteriores.
 HardwareManager::HardwareManager() : hwid(ObtainHwid()) {} 
 
-/**
+/*
  * Genera el identificador del hardware.
  *
  * El comportamiento actual es la ejecución de un comando.

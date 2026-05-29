@@ -1,34 +1,15 @@
 #include "license_service.h"
 
-#include <atomic>
-#include <cstdio>
 #include <ctime>
 #include <iostream>
-#include <thread>
-#include <vector>
 
 #include "anti_tamper.h"
 #include "license.h"
 #include "license_exception.h"
 
-namespace {
-
-    std::atomic<bool> valid{true};
-
-    // Convertir un tiempo de reloj a una cadena
-    std::string timePointToString(std::chrono::system_clock::time_point tp) {
-        std::time_t t = std::chrono::system_clock::to_time_t(tp);
-
-        std::tm* tm = std::gmtime(&t); 
-
-        char buffer[32];
-        std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S UTC", tm);
-
-        return std::string(buffer);
-    }
-}
-
 namespace secenly::internal {
+
+std::atomic<bool> valid{true};
 
 bool LicenseService::CheckExpiration(const std::chrono::system_clock::time_point& expiration_date) {
     bool expirates = false;
@@ -46,9 +27,10 @@ void LicenseService::ValidateRuntime(const License& lic) {
     tamper.Validate();
 
     // Validación licencia
-    auto now = std::chrono::system_clock::now();
-    if (now > lic.expiration_date) {
-        throw std::runtime_error("[ERROR] License expired");
+    if (CheckExpiration(lic.expiration_date)) {
+        throw LicenseException(LicenseError::Expired, 
+            "[ERROR] The license is expired. Clossing application..."
+        );
     }
 }
 
@@ -79,43 +61,29 @@ void LicenseService::ValidateRuntime(const License& lic) {
 void LicenseService::ValidateLicenseInitial(License& lic, const std::string& expected_id) {
     static AntiTamperManager tamper;
 
-    std::cout << "\n==================== LICENCIA ====================\n";
-    std::cout << "ID:           " << lic.id << std::endl;
-    std::cout << "Creación:     " << timePointToString(lic.creation_date) << std::endl;
-    std::cout << "Expiración:   " << timePointToString(lic.expiration_date) << std::endl;
-    std::cout << "Heartbeat:    " << lic.heartbeat_interval << std::endl;
-    std::cout << "Notas:        " << lic.notes << std::endl;
-
     // VALIDACIONES DE CAMPOS
     // Validación 1 - Identificador de la licencia vacío
     if (lic.id.empty()) 
-        throw LicenseException(LicenseError::EmptyId, "License ID is empty");
+        throw LicenseException(LicenseError::EmptyId, 
+            "[ERROR] The license ID is empty. Clossing application..."
+        );
 
     // Validación 2 - Identificador de licencia inválido
     if (lic.id != expected_id)
-        throw LicenseException(LicenseError::InvalidId,"Invalid license ID");
+        throw LicenseException(LicenseError::InvalidId,
+            "[ERROR] The license ID is invalid. Clossing application..."
+        );
 
-    // Validación 3 - La licencia ha expirado
-    if (CheckExpiration(lic.expiration_date))      
-        throw std::runtime_error("License is expired");
-        
-    // Validación 4 - Validación anti-tamper
+    // Validación 3 - Validación anti-tamper
     tamper.Validate();
+
+    // Validación 4 - La licencia ha expirado
+    if (CheckExpiration(lic.expiration_date))      
+        throw LicenseException(LicenseError::Expired, 
+            "[ERROR] The license is expired. Clossing application..."
+        );
+        
+    
 }
-
-/*
-    // ===============================
-    //      INFORMACIÓN DE FIRMA
-    // ===============================
-    std::cout << "\n=== INFORMACIÓN DE FIRMA ===\n";
-
-    if (result.signers.empty()) {
-        std::cout << "No se encontraron certificados en el CMS\n";
-    } else {
-        for (const auto& signer : result.signers) {
-            std::cout << "Certificado: " << signer << std::endl;
-        }
-    }
-*/
 
 }

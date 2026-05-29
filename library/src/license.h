@@ -2,7 +2,6 @@
 #define LICENSE_H
 
 #include <chrono>
-#include <cstdint>
 #include <string>
 
 /**

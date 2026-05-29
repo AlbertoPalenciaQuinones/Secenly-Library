@@ -15,16 +15,39 @@ namespace secenly::internal {
  * necesidad, debe añadirla. No debe tocar absolutamente nada más de la clase.
  */
 enum class LicenseError {
+    // Inicialización (hardware_manager y product_manager)
+    HardwareIdGenerationFailed, 
+    SeedFileNotFound,
+
+    // Firma y certificado (cms_license_loader)
+    CertificateLoadError,
+    CmsParseError,
     InvalidSignature,
     UnauthorizedCert,
+
+    // Parseo de la licencia (license_parser)
+    DERFormatError,
+    ASN1TypeError,
+    ASN1ValueError,
+
+    // Validación de licencia  (license_service)
+    Expired,
     EmptyId,
     InvalidId,
-    Expired,
-    InvalidClock,
-    Unauthorized
+
+    // Mecanismo anti-tampering (anti_tamper)
+    CorruptedState,
+    FileIOError,
+    RuntimeTamperingDetected,
+    ClockRollbackDetected,
+
+    // API pública (license_api)
+    InternalError,
+    SeedInitializationFailed
 };
 
 class LicenseException : public std::runtime_error {
+    
 public:
     LicenseException(LicenseError code, const std::string& msg)
         : std::runtime_error(msg), code_(code) {}
@@ -36,3 +59,4 @@ private:
 };
 
 }
+

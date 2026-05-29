@@ -1,10 +1,5 @@
 #include "cms_license_loader.h"
 
-#include <cstdio>
-#include <stdexcept>
-#include <string>
-#include <vector>
-
 #include "license_exception.h"
 #include "utils/crypto_utils.h"
 
@@ -25,7 +20,10 @@ namespace {
         fclose(file);
 
         if (!cert) {
-            throw std::runtime_error("[ERROR] The file reading failed.");
+            throw secenly::internal::LicenseException(
+                secenly::internal::LicenseError::CertificateLoadError, 
+                "[ERROR] Failed to load the certificate."
+            );
         }
 
         return cert;
@@ -38,7 +36,10 @@ namespace {
 
         // Se calcula el hash del certificado
         if (!X509_digest(cert, EVP_sha256(), md, &len)) {
-            throw std::runtime_error("[ERROR] The process of calculating fingerprint failed.");
+            throw secenly::internal::LicenseException(
+                secenly::internal::LicenseError::CertificateLoadError,
+                "[ERROR] The process of calculating fingerprint failed."
+            );
         }
 
         std::string result;
@@ -56,7 +57,10 @@ namespace {
         CMS_ContentInfo* cms = d2i_CMS_ContentInfo(nullptr, &p, size);
         if (!cms) {
             ERR_print_errors_fp(stderr);
-            throw std::runtime_error("[ERROR] The process of parsing CMS failed.");
+            throw secenly::internal::LicenseException(
+                secenly::internal::LicenseError::CmsParseError,
+                "[ERROR] The process of parsing CMS failed."
+            );
         }
 
         return cms;
@@ -116,7 +120,8 @@ std::vector<uint8_t> CmsLicenseLoader::VerifyAndExtractContent(CMS_ContentInfo* 
     if (result != 1) {
         ERR_print_errors_fp(stderr);
         BIO_free(out);
-        throw LicenseException(LicenseError::InvalidSignature, 
+        throw secenly::internal::LicenseException(
+            secenly::internal::LicenseError::InvalidSignature,
             "[ERROR] The signature is invalid."
         );
     }
@@ -149,7 +154,8 @@ CmsResult CmsLicenseLoader::ExtractLicenseDer(
 
     if (!IsTrustedSigner(cms, trusted_cert, signer_names)) {
         Cleanup(cms, trusted_cert);
-        throw LicenseException(LicenseError::UnauthorizedCert, 
+        throw secenly::internal::LicenseException(
+            secenly::internal::LicenseError::UnauthorizedCert,
             "[ERROR] The certificate is unauthorized."
         );
     }

@@ -1,8 +1,6 @@
 #ifndef CMS_LICENSE_LOADER_H
 #define CMS_LICENSE_LOADER_H
 
-#include <cstddef>
-#include <cstdint>
 #include <string>
 #include <vector>
 
