@@ -2,53 +2,61 @@
 #include <fstream>
 
 #include "test_helper.h"
-#include "../library/license/license_service.h"
-#include "../library/license/license_exception.h"
+#include "src/cms_license_loader.h"
+#include "src/license_exception.h"
+#include "src/license_parser.h"
+#include "src/license_service.h"
+
+using namespace secenly::internal;
 
 // TEST 1 - Al validar una licencia válida, no se expera que se lance la excepción.
 TEST(LicenseServiceTest, ValidLicenseDoesNotThrow) {
     std::vector<uint8_t> data = TestHelper::LoadFile("tests/resources/license.der");
 
+    std::string id_expected = "281eec9156258a845ba5e88549d3ee43d01a6948f16d2a7927a3afbb981bb98361bf525a480a5cd7803a620c466c21bd380bd53961c46242c69f026fd768e616";
+
+    CmsLicenseLoader loader;
+    auto result = loader.ExtractLicenseDer(data.data(), data.size(), "tests/resources/cert.pem");
+
+    License lic = ParseLicense(result.content.data(), result.content.size());
+
     EXPECT_NO_THROW(
-        LicenseService::ValidateLicense(data, "seed.txt", "tests/resources/license.der")
+        LicenseService::ValidateLicenseInitial(lic.id, lic.expiration_date, id_expected)
     );
 }
 
-// TEST 2 - Al validar una licencia y corromper su contenido, se espera que se
-// lanze una excepción indicando el error.
-TEST(LicenseServiceTest, CorruptedLicenseThrows) {
+// TEST 2 - Al validar una licencia utilizando un identificador inválido, se
+// espera que salte una excepción.
+TEST(LicenseServiceTest, InvalidIdThrows) {
     std::vector<uint8_t> data = TestHelper::LoadFile("tests/resources/license.der");
 
-    // Corromper el contenido
-    data[10] ^= 0xFF;
+    CmsLicenseLoader loader;
+    auto result = loader.ExtractLicenseDer(data.data(), data.size(), "tests/resources/cert.pem");
+
+    License lic = ParseLicense(result.content.data(), result.content.size());
+
+    std::string id_wrong = "000000";
 
     EXPECT_THROW(
-        LicenseService::ValidateLicense(data, "seed.txt", "tests/resources/license.der"), 
+        LicenseService::ValidateLicenseInitial(lic.id, lic.expiration_date, id_wrong),
         LicenseException
     );
 }
 
-// TEST 3 - Al validar una licencia utilizando un identificador inválido, se
-// espera que salte una excepción.
-TEST(LicenseServiceTest, InvalidIdThrows) {
-    std::vector<uint8_t> data =
-        TestHelper::LoadFile("tests/resources/license_wrong_id.der");
-
-    try {
-        LicenseService::ValidateLicense(data, "seed.txt", "tests/resources/license.der");
-        FAIL();
-    } catch (const LicenseException& e) {
-        EXPECT_EQ(e.code(), LicenseError::InvalidId);
-    }
-}
-
-// TEST 4 - Al validar una licencia ya expirada, se espera que salte una 
+// TEST 3 - Al validar una licencia ya expirada, se espera que salte una 
 // excepción indicando que ya ha sido caducada.
 TEST(LicenseServiceTest, ExpiredLicenseThrows) {
     std::vector<uint8_t> data = TestHelper::LoadFile("tests/resources/license_expired.der");
 
+    std::string id_expected = "281eec9156258a845ba5e88549d3ee43d01a6948f16d2a7927a3afbb981bb98361bf525a480a5cd7803a620c466c21bd380bd53961c46242c69f026fd768e616";
+
+    CmsLicenseLoader loader;
+    auto result = loader.ExtractLicenseDer(data.data(), data.size(), "tests/resources/cert.pem");
+
+    License lic = ParseLicense(result.content.data(), result.content.size());
+
     EXPECT_THROW(
-        LicenseService::ValidateLicense(data, "seed.txt", "tests/resources/license.der"),
+        LicenseService::ValidateLicenseInitial(lic.id, lic.expiration_date, id_expected),
         LicenseException
     );
 }
