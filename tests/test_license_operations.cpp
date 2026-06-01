@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../library/manager/license_manager.h"
-#include "../library/utils/crypto_utils.h"
+#include "src/license_manager.h"
+#include "src/utils/crypto_utils.h"
 
 // TEST 1 - Al pasar una cadena de hexadecimal por el flujo: hex -> bytes -> hex, 
 // se verifica que el hexadecimal inicial coincida con el resultante del flujo.
@@ -40,6 +40,6 @@ TEST(LicenseOperationsTest, XorDifferentSizes) {
 
     EXPECT_THROW(
         CryptoUtils::XorBuffers(a, b),
-        std::runtime_error
+        std::invalid_argument
     );
 }

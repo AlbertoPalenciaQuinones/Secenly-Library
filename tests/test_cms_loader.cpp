@@ -1,8 +1,10 @@
 #include <gtest/gtest.h>
 
 #include "test_helper.h"
-#include "../library/license/cms_license_loader.h"
-#include "../library/license/license_exception.h"
+#include "src/cms_license_loader.h"
+#include "src/license_exception.h"
+
+using namespace secenly::internal;
 
 // TEST 1 - Se extrae la licencia de un archivo der inválido.
 TEST(CmsLoaderTest, InvalidDerThrows) {

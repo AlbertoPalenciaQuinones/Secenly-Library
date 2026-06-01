@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "../library/manager/license_manager.h"
+#include "src/license_manager.h"
+
+using namespace secenly::internal;
 
 // TEST 1 - Al generar 2 identificadores de licencia de un mismo identificador
 // de producto, se generan 2 identificador de licencia iguales. De esta forma, 
