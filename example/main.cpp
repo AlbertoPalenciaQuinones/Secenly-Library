@@ -1,11 +1,8 @@
+#include <atomic>
 #include <iostream>
-#include <ctime>
-#include <cstdio>
-#include <fstream>
-#include <vector>
-#include <cstdint>
+#include <thread>
 
-#include "../library/license/license_service.h"
+#include "../library/include/license_api.h"
 
 //=============================================================================
 //=========== ESTA CLASE ES UNA "SIMULACIÓN" DE SOFTWARE PROPIETARIO ==========
@@ -14,47 +11,75 @@
 //======= biblioteca, que métodos son utilizables y como sería el flujo. ======
 //=============================================================================
 
+std::atomic<bool> running = true;
+
+// Convertir un tiempo de reloj a una cadena
+std::string timePointToString(std::chrono::system_clock::time_point tp) {
+    std::time_t t = std::chrono::system_clock::to_time_t(tp);
+
+    std::tm* tm = std::gmtime(&t); 
+
+    char buffer[32];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S UTC", tm);
+
+    return std::string(buffer);
+}
+
 int main() {
-    try {
-        // Obtener la ruta de la semilla
-        std::string seed_path ;
-        std::cout << "[INPUT] Enter the path to your seed file: ";
-        std::cin >> seed_path;
+    // Obtener la ruta de la semilla
+    std::string seed_path ;
+    std::cout << "[INPUT] Enter the path to your seed file: ";
+    std::cin >> seed_path;
 
-        // Obtener la ruta del archivo de licencia
-        std::string license_path;
-        std::cout << "[INPUT] Enter the path to your license file: ";
-        std::cin >> license_path;
+    // Obtener la ruta del archivo de licencia
+    std::string license_path;
+    std::cout << "[INPUT] Enter the path to your license file: ";
+    std::cin >> license_path;
 
-        std::ifstream license_file(license_path, std::ios::binary);
-        if (!license_file) {
-            throw std::runtime_error("[ERROR] An error happend oppening the license file");
+    // Obtener la ruta del archivo de certificado
+    std::string cert_path;
+    std::cout << "[INPUT] Enter the path to your certificate file: ";
+    std::cin >> cert_path;
+
+    // Guardar todos los datos del archivo
+    License license = LicenseAPI::ObtainLicense(license_path, cert_path);
+
+    std::cout << "\n==================== LICENCIA ====================\n";
+    std::cout << "ID:           " << license.id << std::endl;
+    std::cout << "Creation:     " << timePointToString(license.creation_date) << std::endl;
+    std::cout << "Expiration:   " << timePointToString(license.expiration_date) << std::endl;
+    std::cout << "Heartbeat:    " << license.heartbeat_interval << std::endl;
+    std::cout << "Notes:        " << license.notes << std::endl;
+
+    // Validación inicial al abrir el software propietario
+    LicenseAPI::ValidateInitial(license, seed_path);
+
+    // SIMULACIÓN DE SOFTWARE PROPIETARIO CORRIENDO
+    std::cout << "[INFO] Application running...\n";
+
+    // Validación periódica en tiempo de ejecución   
+    std::thread t([&license]() {
+        while (running) {
+            try {
+                LicenseAPI::ValidateRuntime(license);
+                std::cout << "[INFO] License valid. Next check in " 
+                          << license.heartbeat_interval << " seconds.\n";
+            } catch (const std::exception& e) {
+                std::cerr << "[ERROR] " << e.what() << std::endl;
+                running = false;
+            }
+
+            std::this_thread::sleep_for(
+                std::chrono::seconds(license.heartbeat_interval)
+            );
         }
+    });
+    t.join();
 
-        // Obtener la ruta del archivo de certificado
-        std::string cert_path;
-        std::cout << "[INPUT] Enter the path to your certificate file: ";
-        std::cin >> cert_path;
-
-        // Crear flujo de entrada de archivo para leerlo
-        std::ifstream cert_file(cert_path, std::ios::binary);
-        if (!cert_file) {
-            throw std::runtime_error("[ERROR] An error happend oppening the certificate file");
-        }
-
-        // Guardar todos los datos del archivo
-        auto data = std::vector<uint8_t>(std::istreambuf_iterator<char>(license_file), std::istreambuf_iterator<char>());
-        std::cout << "\n[INFO] License loaded correctly!\n";
-        std::cout << "[INFO] Size: " << data.size() << " bytes\n";
-
-        LicenseService::ValidateLicense(data, seed_path, cert_path);
-
-    } catch (const std::exception& e) {
-        std::cerr << "\n[ERROR] Error procesing the license:\n";
-        std::cerr << e.what() << std::endl;
+    // mantener proceso vivo
+    while (running) {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
-
-    //LicenseService::ValidateLicense(data, seed_path, cert_path);
 
     return 0;
 }

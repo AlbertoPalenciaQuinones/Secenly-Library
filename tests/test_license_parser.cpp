@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
-#include "../library/license/license_parser.h"
+
+#include "src/license_parser.h"
+
+using secenly::internal::ParseLicense;
 
 // TEST 1 - Se comprueba que al parsear la licencia, al hacerlo sobre unos
 // bytes incorrectos, salte una excepción.
