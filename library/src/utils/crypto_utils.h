@@ -14,6 +14,4 @@ public:
     );
 };
 
-
-
-#endif
+#endif // CRYPTO_UTILS_H

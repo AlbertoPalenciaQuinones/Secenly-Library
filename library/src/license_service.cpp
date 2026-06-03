@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include "anti_tamper.h"
-#include "license.h"
 #include "license_exception.h"
 
 namespace secenly::internal {
@@ -20,14 +19,16 @@ bool LicenseService::CheckExpiration(const std::chrono::system_clock::time_point
     return expirates;
 }
 
-void LicenseService::ValidateRuntime(const License& lic) {
+void LicenseService::ValidateRuntime(
+    const std::chrono::system_clock::time_point& expiration_date) {
+        
     static AntiTamperManager tamper;
 
     // Anti‑tamper
     tamper.Validate();
 
     // Validación licencia
-    if (CheckExpiration(lic.expiration_date)) {
+    if (CheckExpiration(expiration_date)) {
         throw LicenseException(LicenseError::Expired, 
             "[ERROR] The license is expired. Clossing application..."
         );
@@ -58,18 +59,22 @@ void LicenseService::ValidateRuntime(const License& lic) {
  * la biblioteca, se recomienda que si realmente quiere modificar su 
  * funcionamiento, añada o elimine mecanismos de seguridad de esta misma clase.
  */
-void LicenseService::ValidateLicenseInitial(License& lic, const std::string& expected_id) {
+void LicenseService::ValidateLicenseInitial(
+    std::string license_id, 
+    const std::chrono::system_clock::time_point& expiration_date, 
+    const std::string& expected_id) {
+
     static AntiTamperManager tamper;
 
     // VALIDACIONES DE CAMPOS
     // Validación 1 - Identificador de la licencia vacío
-    if (lic.id.empty()) 
+    if (license_id.empty()) 
         throw LicenseException(LicenseError::EmptyId, 
             "[ERROR] The license ID is empty. Clossing application..."
         );
 
     // Validación 2 - Identificador de licencia inválido
-    if (lic.id != expected_id)
+    if (license_id != expected_id)
         throw LicenseException(LicenseError::InvalidId,
             "[ERROR] The license ID is invalid. Clossing application..."
         );
@@ -78,7 +83,7 @@ void LicenseService::ValidateLicenseInitial(License& lic, const std::string& exp
     tamper.Validate();
 
     // Validación 4 - La licencia ha expirado
-    if (CheckExpiration(lic.expiration_date))      
+    if (CheckExpiration(expiration_date))      
         throw LicenseException(LicenseError::Expired, 
             "[ERROR] The license is expired. Clossing application..."
         );

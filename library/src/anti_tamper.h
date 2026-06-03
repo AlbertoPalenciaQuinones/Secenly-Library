@@ -1,4 +1,5 @@
-#pragma once
+#ifndef ANTI_TAMPER_H
+#define ANTI_TAMPER_H
 
 #include <cstdint>
 
@@ -16,3 +17,5 @@ private:
 };
 
 }
+
+#endif // ANTI_TAMPER_H

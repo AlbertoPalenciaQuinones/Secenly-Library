@@ -5,26 +5,16 @@
 #include <string>
 #include <thread>
 
-#include "license.h"
-
 namespace secenly::internal {
 
 class LicenseService {
 public:
-    static void ValidateLicenseInitial(License& lic, const std::string& expected_id);
+    static void ValidateLicenseInitial(std::string license_id, const std::chrono::system_clock::time_point& expiration_date, const std::string& expected_id);
 
-    static void ValidateRuntime(const License& lic);
+    static void ValidateRuntime(const std::chrono::system_clock::time_point& expiration_date);
 
 private:
-    std::atomic<bool> running{false};
-    std::thread heartbeat_thread;
-
     static bool CheckExpiration(const std::chrono::system_clock::time_point& expiration_date);
-
-    void StopHeartbeat();
-    void StartHeartbeatAlgorithm(License& lic);
-
-    static void AntiTamper();
 };
 
 }

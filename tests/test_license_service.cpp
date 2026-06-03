@@ -60,3 +60,15 @@ TEST(LicenseServiceTest, ExpiredLicenseThrows) {
         LicenseException
     );
 }
+
+// TEST 4 - Al leer una licencia con un certificado no confiable, se espera que salte una
+// excepción indicando que el certificado no es confiable.
+TEST(LicenseServiceTest, UntrustedCertThrows) {
+    std::vector<uint8_t> data = TestHelper::LoadFile("tests/resources/license.der");
+
+    CmsLicenseLoader loader;
+    EXPECT_THROW(
+        loader.ExtractLicenseDer(data.data(), data.size(), "tests/resources/untrusted_cert.pem"),
+        LicenseException
+    );
+}

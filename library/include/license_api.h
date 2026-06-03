@@ -1,10 +1,6 @@
 #ifndef LICENSE_API_H
 #define LICENSE_API_H
 
-#include <cstdint>
-#include <string>
-#include <vector>
-
 #include "src/license.h"
 
 class LicenseAPI {
@@ -13,9 +9,9 @@ public:
         const std::string& data,
         const std::string& cert_path);
 
-    static void ValidateInitial(License& lic, std::string& seed_path);
+    static bool ValidateInitial(License& lic, std::string& seed_path);
 
-    static bool ValidateRuntime(License& lic);
+    static bool ValidateRuntime(const License& lic);
 };
 
 #endif // LICENSE_API_H

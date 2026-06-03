@@ -2,7 +2,7 @@
 #include <iostream>
 #include <thread>
 
-#include "../library/include/license_api.h"
+#include "license_api.h"
 
 //=============================================================================
 //=========== ESTA CLASE ES UNA "SIMULACIÓN" DE SOFTWARE PROPIETARIO ==========
@@ -27,7 +27,7 @@ std::string timePointToString(std::chrono::system_clock::time_point tp) {
 
 int main() {
     // Obtener la ruta de la semilla
-    std::string seed_path ;
+    std::string seed_path;
     std::cout << "[INPUT] Enter the path to your seed file: ";
     std::cin >> seed_path;
 
@@ -52,7 +52,12 @@ int main() {
     std::cout << "Notes:        " << license.notes << std::endl;
 
     // Validación inicial al abrir el software propietario
-    LicenseAPI::ValidateInitial(license, seed_path);
+    try {
+        LicenseAPI::ValidateInitial(license, seed_path);
+        std::cout << "[INFO] License params are valid.\n";
+    } catch (const std::exception& e) {
+        std::cerr << "[ERROR] " << e.what() << std::endl;
+    }
 
     // SIMULACIÓN DE SOFTWARE PROPIETARIO CORRIENDO
     std::cout << "[INFO] Application running...\n";
