@@ -52,3 +52,9 @@ Las siguientes funciones han sido diseñadas para poder modificarse según las n
 - `library/src/anti_tamper.cpp` → `CheckTamper`
 
 Estas funciones contienen comentarios explicativos directamente en el código, por lo que no se detalla aquí su funcionamiento. Por motivos de seguridad e integridad, se recomienda **no modificar**: procesos de validación criptográfica (CMS / firma), lógica interna de verificación de integridad y estructuras críticas del sistema sin comprender su impacto. Además, al modificar la biblioteca debe tener en cuenta que puede romperse la compatibilidad con licencias existentes y que cambios en la generación del ID afectan a todo el sistema.
+
+# Dependencias externas
+Para asegurar el correcto funcionamiento de la biblioteca de Secenly, se han utilizado 2 bibliotecas de forma externa debido a la dificultad de extraer las funciones necesarias de cada una de ellas. Ellas son:
+
+- OpenSSL: librería criptográfica.
+- SHA512: librería para realizar funciones hash mediante el algoritmo SHA-512.
