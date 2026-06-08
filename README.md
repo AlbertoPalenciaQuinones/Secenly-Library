@@ -2,9 +2,9 @@
 Esta biblioteca forma parte del sistema **Secenly** y fundamentalmente, está diseñada para cumplir con la validación de licencias. La herramienta **Secenly** se encarga de realizar todo tipo de acciones con las licencias: creación, eliminación, modificación y consulta de licencias (entre otras). Además, ella se encarga de generar el **ContentInfo**, el cual contiene el **SignedData**, el cual contiene la licencia, haciendo uso de la serialización en formato *ASN.1* y codificación en *DER*.
 
 # Ejecución  
-El funcionamiento de la biblioteca es a través de un **Makefile**. Para poder ejecutar la simulación de la biblioteca los pasos son los siguientes:
+El funcionamiento de la biblioteca es a través de un **Makefile**. Para poder ejecutar la simulación de la biblioteca, los pasos son los siguientes:
 
-1. Posicionarse en la rama del proyecto (donde se encuentra el archivo **Makefile**)
+1. Posicionarse en la raiz del proyecto (donde se encuentra el archivo **Makefile**)
 2. Escribir por la línea de comandos: **make**
 3. Compilar el archivo generado mediante el comando anterior (programa) con: **./programa**
 
@@ -30,6 +30,7 @@ El corazón de la biblioteca es la validación y lectura de las licencias, ya qu
 A continuación se expone toda la información relevante sobre **cómo modificar la biblioteca** según las necesidades de cada usuario. La biblioteca es **open-source**, lo que significa que puede ser utilizada libremente y adaptada a distintos entornos o proyectos.
 
 Actualmente, la biblioteca incluye diversos mecanismos de seguridad básicos, como:
+
 - Generación de identificadores de licencia
 - Validación de licencias
 - Procesamiento y parsing de datos
